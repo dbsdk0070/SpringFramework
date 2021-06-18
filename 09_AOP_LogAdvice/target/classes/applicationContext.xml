@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<context:component-scan base-package="com.spring.biz"></context:component-scan>
+	
+	<!-- AOP 설정(xmlns:aop 추가) -->
+	<!-- *Impl 클래스의 모든 메소드 실행 전 LogAdvice.printLog() 실행 -->
+	<!-- <bean id = "log" class="com.spring.biz.common.LogAdvice" />
+	<aop:config>
+		<aop:pointcut expression="execution(* com.spring.biz..*Impl.*(..))" id="allPointcut"/> 
+		<aop:aspect ref="log"> 동작시킬 클래스 
+			<aop:before pointcut-ref = "allPointcut" method="printLog" /> advice를 적용할 pointcut
+		</aop:aspect>
+	</aop:config> -->
+
+	<!-- pointcut : 어드바이스가 찾을 대상 :: 패키지 경로 (* com.spring.biz..) | Impl로 끝나는 클래스(*Impl.) | 아무 메소드(*(..)) -->
+	<!-- aspect : pointcut과 advice를 연결 -->
+	<!-- before : advice를 언제 적용할것인가? => pointcut에 expression 메소드가 실행하기 전에 printLog를 실행시켜라 / 로그디바이스 자바파일의 printLog 메소드 지정-->
+	<!-- 1.리턴타입 - execution 맨 앞에는 리턴타입, *는 모든지 상관 없다는 뜻 -->
+	<!-- 패키지명 - biz.. : ..두개는 biz포함 biz하위에 있는 모든 것 -->
+	<!-- 클래스명 - * 모든 클래스명 but  / *다음 메소드명 - Impl은 Impl로 끝나는 모든 메소드 -->
+	<!-- 파라미터 - .. : 어떤 파라미터이든지 관계 없음 -->
+
+	<!-- Log4jAdvice 클래스 사용해서 로그 남기기 -->
+	<bean id = "log4j" class="com.spring.biz.common.Log4jAdvice" />
+	<aop:config>
+		<!-- 포인트컷(pointcut) : 핵심관심 중 AOP 적용 대상으로 선정할 메소드 설정 - advice가 적용될 메소드 -->
+		<aop:pointcut expression="execution(* com.spring.biz..*Impl.*(..))" id="allPointcut"/>		
+		<aop:pointcut expression="execution(* com.spring.biz..*Impl.get*(..))" id="getPointcut"/>	
+		<!-- 애스팩트(aspect) : 적용대상 (pointcut)과 적용할 횡단관심(advice) 연결  -->
+		<aop:aspect ref = "log4j">
+			<aop:before pointcut-ref = "allPointcut" method="printLogging"/>
+		</aop:aspect>
+	</aop:config>
+</beans>
