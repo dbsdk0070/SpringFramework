@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.credit.home.dao.CreditDAO">
+	<select id="loginOk" parameterType="com.credit.home.vo.CusVO" resultType="String">
+		select cusno from membertbl where cusno=#{cusno} and birth=#{birth}
+	</select>
+	
+	
+	<insert id="InsertCus" parameterType="com.credit.home.vo.CusVO">
+		insert into membertbl
+		(
+			cusno,
+			kname, 
+			ename, 
+			birth, 
+			haddr, 
+			haddr2, 
+			htel, 
+			phone, 
+			email,
+	        fkname, 
+	        fename, 
+	        fbirth, 
+	        frel, 
+	        fmax, 
+	        fphone,
+	        cpy, 
+	        caddr, 
+	        ctel, 
+	        cdeptno, 
+	        cposition
+		) 
+		values
+		(
+			'RS'||cussq.nextval, 
+			#{kname},
+			#{ename},
+			#{birth},
+			#{haddr},
+			#{haddr2},
+			#{htel, jdbcType=VARCHAR},
+			#{phone}, 
+			#{email},
+		    #{fkname}, 
+	        #{fename}, 
+	        #{fbirth}, 
+	        #{frel}, 
+	        #{fmax}, 
+	        #{fphone},
+	        #{cpy}, 
+	        #{caddr}, 
+	        #{ctel}, 
+	        #{cdeptno}, 
+	        #{cposition}
+		)
+	</insert>
+	
+	
+	<insert id="InsertItem" parameterType="com.credit.home.vo.itemVO">
+	insert into itemtbl(
+    	cardnum, 
+    	cusno, 
+    	item, 
+    	brand, 
+    	itemService, 
+    	cardDesign, 
+    	addfc, 
+	    foregin, 
+	    payMethod, 
+	    payaddr, 
+	    paytel, 
+	    sms, 
+	    checks, 
+	    paymax
+	)
+	values(
+	    #{cardnum},
+	    (select cusno from membertbl where kname=#{kname} and birth=#{birth} and phone=#{phone}),
+	    #{item}, 
+    	#{brand}, 
+    	#{itemService}, 
+    	#{cardDesign}, 
+    	#{addfc}, 
+	    #{foregin}, 
+	    #{payMethod}, 
+	    #{payaddr}, 
+	    #{paytel}, 
+	    #{sms}, 
+	    #{checks}, 
+	    #{paymax}
+	)
+	</insert>
+	
+	
+	<insert id="InsertPay" parameterType="com.credit.home.vo.CardVO">
+	insert into paytbl(
+		payacc, 
+		paybank, 
+		paydate, 
+		cardnum
+	)
+	values(
+		#{payacc},
+		#{paybank},
+		#{paydate},
+		(select cardnum from itemtbl where cusno=#{cusno})
+	)
+	</insert>
+	
+	
+	<select id="selectCusNO" parameterType="com.credit.home.vo.CusVO" resultType="String">
+		select cusno from membertbl where birth=#{birth} and phone=#{phone} and kname=#{kname}
+	</select>
+	
+	<select id="getJoin" parameterType="String" resultType="com.credit.home.vo.CusVO">
+		select m.kname, m.ename, m.birth, m.haddr, m.haddr2,
+        m.phone, m.email, m.cpy, m.caddr, m.ctel, m.cdeptno, m.cposition,
+        i.checks, i.paymax, i.paymethod, i.payaddr, i.paytel, i.sms,
+        p.paybank, p.payacc, p.paydate
+		from itemtbl i join membertbl m on i.cusno=m.cusno join paytbl p on i.cardnum=p.cardnum
+		where m.cusno=#{param1}
+	</select>
+	
+	<select id="getFamily" parameterType="String" resultType="com.credit.home.vo.CusVO">
+		select m.fkname, m.fename, m.frel, m.fbirth, m.fphone, m.fmax, i.item 
+		from membertbl m join itemtbl i on i.cusno=m.cusno
+		where m.cusno=#{param1}
+	</select>
+	
+	<select id="getCard"  parameterType="String" resultType="com.credit.home.vo.itemVO">
+		select item, brand, cardDesign, addfc, foregin, cardnum, cusno
+		from itemtbl
+		where cusno=#{param1}
+	</select>
+	
+</mapper>
